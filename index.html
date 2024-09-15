@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Dishwasher Dashboard</title>
+    <!-- Meta Tags for Responsive Design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS Styles -->
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* Color Variables */
+        :root {
+            --primary-color: #1abc9c; /* Teal */
+            --secondary-color: #2c3e50; /* Dark Blue */
+            --accent-color: #e74c3c; /* Red */
+            --background-color: #ecf0f1; /* Light Grey */
+            --text-color: #333;
+            --header-footer-bg: #2c3e50;
+            --nav-bg: #34495e;
+            --card-bg: #ffffff;
+            --button-bg: var(--primary-color);
+            --button-text-color: #ffffff;
+            --button-hover-bg: #16a085;
+            --progress-bg: #dfe6e9;
+            --progress-fill: var(--primary-color);
+        }
+
+        /* Dashboard Container */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--header-footer-bg);
+            color: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation Menu */
+        nav {
+            background-color: var(--nav-bg);
+            flex-shrink: 0;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav li {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            color: #bdc3c7;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        nav li:hover,
+        nav li.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            background-color: var(--background-color);
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Heading Styles */
+        h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        /* Cycles Tab */
+        .cycle-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .cycle-card {
+            background-color: var(--card-bg);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            width: 250px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .cycle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .cycle-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.2);
+        }
+
+        .cycle-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .cycle-card p {
+            font-size: 1em;
+            color: var(--text-color);
+        }
+
+        .start-cycle {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .start-button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-color: var(--button-bg);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .start-button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* Real-Time Data Tab */
+        .data-display {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+
+        .data-display p {
+            margin: 20px 0;
+        }
+
+        .data-metrics {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            width: 200px;
+            margin: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .metric-card h4 {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            color: var(--primary-color);
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle circle {
+            stroke-width: 15;
+            fill: none;
+        }
+
+        .progress-bg {
+            stroke: var(--progress-bg);
+        }
+
+        .progress-fill {
+            stroke: var(--progress-fill);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            color: var(--text-color);
+        }
+
+        /* Settings Tab */
+        .settings-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .settings-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            width: 350px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            font-size: 1em;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .settings-group input[type="text"],
+        .settings-group input[type="password"],
+        .settings-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            color: var(--text-color);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #bdc3c7;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .brightness-slider {
+            width: 100%;
+        }
+
+        .settings-button {
+            padding: 12px 20px;
+            background-color: var(--button-bg);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .settings-button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .settings-button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .settings-button i {
+            margin-right: 8px;
+        }
+
+        .settings-save-button {
+            padding: 15px 30px;
+            background-color: var(--secondary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: auto;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .settings-save-button:hover {
+            background-color: #1a252f;
+        }
+
+        /* Cycle History Tab */
+        .history-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .history-summary {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            width: 220px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 1.8em;
+            color: var(--primary-color);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .history-table th {
+            background-color: var(--secondary-color);
+            color: #ffffff;
+        }
+
+        .history-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--header-footer-bg);
+            text-align: center;
+            padding: 15px;
+            color: #bdc3c7;
+            flex-shrink: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav li {
+                font-size: 0.9em;
+            }
+
+            .cycle-card {
+                width: 100%;
+            }
+
+            .metric-card,
+            .summary-card {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .start-button {
+                font-size: 1em;
+            }
+
+            .settings-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header>
+            <h1>Smart Dishwasher</h1>
+        </header>
+        <!-- Navigation Menu -->
+        <nav>
+            <ul>
+                <li class="active" data-tab="cycles">Cycles</li>
+                <li data-tab="real-time-data">Real-Time Data</li>
+                <li data-tab="cycle-history">Cycle History</li>
+                <li data-tab="settings">Settings</li>
+            </ul>
+        </nav>
+        <!-- Main Content -->
+        <main>
+            <div class="content-wrapper">
+                <!-- Cycles Tab -->
+                <section id="cycles" class="tab-content active">
+                    <h2>Select a Cycle</h2>
+                    <div class="cycle-options">
+                        <div class="cycle-card" data-cycle="Normal">
+                            <h3>Normal</h3>
+                            <p>Standard cleaning cycle for everyday dishes.</p>
+                        </div>
+                        <div class="cycle-card" data-cycle="Eco">
+                            <h3>Eco</h3>
+                            <p>Energy-efficient cycle that saves water and electricity.</p>
+                        </div>
+                        <div class="cycle-card" data-cycle="Intensive">
+                            <h3>Intensive</h3>
+                            <p>High-power cycle for heavily soiled dishes.</p>
+                        </div>
+                        <div class="cycle-card" data-cycle="Quick">
+                            <h3>Quick</h3>
+                            <p>Fast cycle for lightly soiled dishes.</p>
+                        </div>
+                    </div>
+                    <div class="start-cycle">
+                        <button class="start-button" id="start-button" disabled>Start Cycle</button>
+                    </div>
+                </section>
+                <!-- Real-Time Data Tab -->
+                <section id="real-time-data" class="tab-content">
+                    <h2>Real-Time Data</h2>
+                    <div class="data-display">
+                        <div class="progress-circle">
+                            <svg width="150" height="150">
+                                <circle class="progress-bg" cx="75" cy="75" r="65"></circle>
+                                <circle class="progress-fill" cx="75" cy="75" r="65" stroke-dasharray="408" stroke-dashoffset="408"></circle>
+                            </svg>
+                            <div class="progress-text"><span id="cycle-progress">0</span>%</div>
+                        </div>
+                        <div class="data-metrics">
+                            <div class="metric-card">
+                                <h4>Water Usage</h4>
+                                <p class="metric-value"><span id="water-usage">0.0</span> L</p>
+                            </div>
+                            <div class="metric-card">
+                                <h4>Energy Consumption</h4>
+                                <p class="metric-value"><span id="energy-consumption">0.00</span> kWh</p>
+                            </div>
+                            <div class="metric-card">
+                                <h4>Estimated Time</h4>
+                                <p class="metric-value"><span id="estimated-time">--</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Cycle History Tab -->
+                <section id="cycle-history" class="tab-content">
+                    <h2>Cycle History</h2>
+                    <div class="history-container">
+                        <div class="history-summary">
+                            <div class="summary-card">
+                                <h4>Total Cycles</h4>
+                                <p class="summary-value" id="total-cycles">0</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Total Water Used</h4>
+                                <p class="summary-value" id="total-water">0.0 L</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Total Energy Consumed</h4>
+                                <p class="summary-value" id="total-energy">0.00 kWh</p>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Average Energy per Cycle</h4>
+                                <p class="summary-value" id="avg-energy">0.00 kWh</p>
+                            </div>
+                        </div>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Cycle Type</th>
+                                    <th>Duration (mins)</th>
+                                    <th>Water Used (L)</th>
+                                    <th>Energy Consumed (kWh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <!-- History rows will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <!-- Settings Tab -->
+                <section id="settings" class="tab-content">
+                    <h2>Settings</h2>
+                    <div class="settings-container">
+                        <!-- Connectivity Settings -->
+                        <div class="settings-card">
+                            <h3>Connectivity</h3>
+                            <form id="connectivity-form">
+                                <div class="settings-group">
+                                    <label for="wifi-network">Wi-Fi Network:</label>
+                                    <input type="text" id="wifi-network" placeholder="Enter Wi-Fi SSID" required>
+                                </div>
+                                <div class="settings-group">
+                                    <label for="wifi-password">Wi-Fi Password:</label>
+                                    <input type="password" id="wifi-password" placeholder="Enter Wi-Fi Password" required>
+                                </div>
+                                <div class="settings-group">
+                                    <label for="notifications">Notifications:</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notifications" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-group">
+                                    <button type="button" id="software-update-button" class="settings-button">
+                                        <i>🔄</i> Check for Updates
+                                    </button>
+                                </div>
+                                <button type="submit" class="settings-save-button">Save Settings</button>
+                            </form>
+                        </div>
+                        <!-- Display Settings -->
+                        <div class="settings-card">
+                            <h3>Display</h3>
+                            <form id="display-form">
+                                <div class="settings-group">
+                                    <label for="language">Language:</label>
+                                    <select id="language">
+                                        <option value="en" selected>English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                        <option value="de">German</option>
+                                    </select>
+                                </div>
+                                <div class="settings-group">
+                                    <label for="brightness">Brightness:</label>
+                                    <input type="range" id="brightness" class="brightness-slider" min="0" max="100" value="75">
+                                </div>
+                                <div class="settings-group">
+                                    <label for="child-lock">Child Lock:</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="child-lock">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-group">
+                                    <button type="button" id="factory-reset-button" class="settings-button">
+                                        <i>⚠️</i> Reset to Defaults
+                                    </button>
+                                </div>
+                                <button type="submit" class="settings-save-button">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 Smart Dishwasher Inc.</p>
+        </footer>
+    </div>
+    <!-- JavaScript Code -->
+    <script>
+        // Tab Navigation
+        const tabs = document.querySelectorAll('nav li');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active classes
+                tabs.forEach(item => item.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Cycle Selection
+        const cycleCards = document.querySelectorAll('.cycle-card');
+        const startButton = document.getElementById('start-button');
+        let selectedCycle = null;
+
+        cycleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Reset selection
+                cycleCards.forEach(c => c.classList.remove('selected'));
+                // Set selected
+                card.classList.add('selected');
+                selectedCycle = card.dataset.cycle;
+                // Enable start button
+                startButton.disabled = false;
+            });
+        });
+
+        // Cycle History Data
+        let cycleHistory = [];
+
+        // Start Cycle Simulation
+        let cycleInterval;
+        startButton.addEventListener('click', () => {
+            if (selectedCycle) {
+                startButton.textContent = 'Cycle Running...';
+                startButton.disabled = true;
+                startButton.style.backgroundColor = '#95a5a6';
+                startCycle();
+            }
+        });
+
+        function startCycle() {
+            let progress = 0;
+            const cycleProgress = document.getElementById('cycle-progress');
+            const progressFill = document.querySelector('.progress-fill');
+            const waterUsage = document.getElementById('water-usage');
+            const energyConsumption = document.getElementById('energy-consumption');
+            const estimatedTime = document.getElementById('estimated-time');
+
+            // Reset real-time data
+            waterUsage.textContent = '0.0';
+            energyConsumption.textContent = '0.00';
+            cycleProgress.textContent = '0';
+            progressFill.style.strokeDashoffset = '408';
+            estimatedTime.textContent = 'Calculating...';
+
+            // Set estimated time based on cycle
+            let totalTime;
+            switch (selectedCycle) {
+                case 'Normal':
+                    totalTime = 120;
+                    break;
+                case 'Eco':
+                    totalTime = 150;
+                    break;
+                case 'Intensive':
+                    totalTime = 180;
+                    break;
+                case 'Quick':
+                    totalTime = 60;
+                    break;
+                default:
+                    totalTime = 120;
+            }
+            estimatedTime.textContent = `${totalTime} mins`;
+
+            // Switch to Real-Time Data Tab
+            tabs.forEach(item => item.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.querySelector('nav li[data-tab="real-time-data"]').classList.add('active');
+            document.getElementById('real-time-data').classList.add('active');
+
+            // Simulate cycle progress
+            cycleInterval = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(cycleInterval);
+                    startButton.textContent = 'Start Cycle';
+                    startButton.style.backgroundColor = 'var(--button-bg)';
+                    startButton.disabled = false;
+                    alert('Cycle completed!');
+                    // Reset selection
+                    cycleCards.forEach(c => c.classList.remove('selected'));
+                    estimatedTime.textContent = '--';
+
+                    // Add cycle data to history
+                    addCycleToHistory({
+                        date: new Date().toLocaleString(),
+                        cycleType: selectedCycle,
+                        duration: totalTime,
+                        waterUsed: parseFloat(waterUsage.textContent),
+                        energyUsed: parseFloat(energyConsumption.textContent)
+                    });
+
+                    selectedCycle = null;
+                } else {
+                    progress += 1;
+                    cycleProgress.textContent = progress;
+                    const offset = 408 - (408 * progress) / 100;
+                    progressFill.style.strokeDashoffset = offset;
+                    waterUsage.textContent = (parseFloat(waterUsage.textContent) + 0.1).toFixed(1);
+                    energyConsumption.textContent = (parseFloat(energyConsumption.textContent) + 0.05).toFixed(2);
+                }
+            }, totalTime * 10); // Adjust speed based on total time
+        }
+
+        // Add Cycle to History
+        function addCycleToHistory(cycleData) {
+            cycleHistory.push(cycleData);
+            updateCycleHistoryTable();
+        }
+
+        // Update Cycle History Table
+        function updateCycleHistoryTable() {
+            const tableBody = document.getElementById('history-table-body');
+            tableBody.innerHTML = '';
+
+            let totalCycles = cycleHistory.length;
+            let totalWater = 0;
+            let totalEnergy = 0;
+
+            cycleHistory.forEach(cycle => {
+                totalWater += cycle.waterUsed;
+                totalEnergy += cycle.energyUsed;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cycle.date}</td>
+                    <td>${cycle.cycleType}</td>
+                    <td>${cycle.duration}</td>
+                    <td>${cycle.waterUsed.toFixed(1)}</td>
+                    <td>${cycle.energyUsed.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            const avgEnergy = totalEnergy / totalCycles;
+
+            document.getElementById('total-cycles').textContent = totalCycles;
+            document.getElementById('total-water').textContent = `${totalWater.toFixed(1)} L`;
+            document.getElementById('total-energy').textContent = `${totalEnergy.toFixed(2)} kWh`;
+            document.getElementById('avg-energy').textContent = `${avgEnergy.toFixed(2)} kWh`;
+        }
+
+        // Settings Forms Submission
+        const connectivityForm = document.getElementById('connectivity-form');
+        const displayForm = document.getElementById('display-form');
+
+        connectivityForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate saving connectivity settings
+            alert('Connectivity settings saved successfully!');
+            connectivityForm.reset();
+        });
+
+        displayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate saving display settings
+            alert('Display settings saved successfully!');
+        });
+
+        // Brightness Slider Display
+        const brightnessSlider = document.getElementById('brightness');
+        brightnessSlider.addEventListener('input', () => {
+            // Simulate adjusting brightness
+            console.log(`Brightness set to ${brightnessSlider.value}%`);
+        });
+
+        // Software Update Button
+        const softwareUpdateButton = document.getElementById('software-update-button');
+        softwareUpdateButton.addEventListener('click', () => {
+            // Simulate checking for updates
+            alert('Your software is up to date!');
+        });
+
+        // Factory Reset Button
+        const factoryResetButton = document.getElementById('factory-reset-button');
+        factoryResetButton.addEventListener('click', () => {
+            // Simulate factory reset
+            const confirmReset = confirm('Are you sure you want to reset to factory defaults? This will erase all your settings.');
+            if (confirmReset) {
+                alert('Factory reset completed.');
+                // Reset settings (this can be expanded to reset actual settings)
+            }
+        });
+    </script>
+</body>
+</html>
